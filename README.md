@@ -5,7 +5,7 @@ The project leverages a sophisticated hybrid NLP architecture that brings togeth
 **1st Step Retrieve:** Extracting Textual Data from PDF Files Using fitz (PyMuPDF)
 for Retrieval-Augmented Generation (RAG) Systems
 
-**1. Introduction**\
+**1.1 Introduction**\
 Retrieval-Augmented Generation (RAG) integrates external data retrieval
 mechanisms with generative large language models (LLMs) to enhance
 contextual understanding and factual accuracy. A key prerequisite for
@@ -14,12 +14,12 @@ documents into queryable text chunks. This report details the process of
 extracting data from PDF files using the fitz module from the PyMuPDF
 library to support RAG workflows.
 
-**2. Objective**\
+**1.2. Objective**\
 To extract structured and clean text from PDF documents using Python's
 fitz library, preparing the content for indexing and retrieval in a
 RAG-based LLM application.
 
-**3. Tools and Libraries**
+**1.3. Tools and Libraries**
 
 -   **fitz (PyMuPDF)**: A lightweight Python binding for MuPDF, used for
     reading and manipulating PDF files.
@@ -29,13 +29,13 @@ RAG-based LLM application.
 -   Optional: langchain, faiss, or chromadb for downstream chunking and
     indexing.
 
-**4. Methodology**
+**1.4. Methodology**
 
-**4.1 Installation**
+**1.4.1 Installation**
 
 pip install pymupdf
 
-**4.2 Text Extraction Process**
+**1.4.2 Text Extraction Process**
 
 import fitz \# PyMuPDF
 
@@ -53,7 +53,7 @@ doc.close()
 
 return text
 
-**4.3 Preprocessing**\
+**1.4.3 Preprocessing**\
 After extraction, the text may contain line breaks, headers/footers, or
 encoding artifacts. Preprocessing steps may include:
 
@@ -78,7 +78,7 @@ cleaned = re.sub(r\'\[ \]{2,}\', \' \', cleaned)
 
 return cleaned.strip()
 
-**4.4 Chunking for RAG**\
+**1.4.4 Chunking for RAG**\
 The cleaned text is split into chunks (e.g., 500 tokens) to optimize
 retrieval. Tools such as
 langchain.text_splitter.RecursiveCharacterTextSplitter or custom
@@ -96,13 +96,13 @@ chunk_overlap=50
 
 chunks = splitter.split_text(cleaned_text)
 
-**5. Integration with RAG Pipelines**\
+**1.5. Integration with RAG Pipelines**\
 The extracted chunks can be indexed into a vector database (e.g., FAISS,
 Chroma, Weaviate). These embeddings are later retrieved during inference
 by similarity to user queries and passed into the LLM to improve its
 responses.
 
-**6. Advantages of Using fitz (PyMuPDF)**
+**1.6. Advantages of Using fitz (PyMuPDF)**
 
 -   Fast parsing of PDFs with high accuracy
 
@@ -111,7 +111,7 @@ responses.
 -   Supports advanced operations such as annotation parsing or image
     extraction (if required)
 
-**7. Limitations**
+**1.7. Limitations**
 
 -   Complex layouts (e.g., multi-column, embedded tables) may still
     require layout-aware post-processing
@@ -119,7 +119,7 @@ responses.
 -   Non-text PDFs (scanned images) require OCR (e.g., with Tesseract or
     PaddleOCR)
 
-**8. Conclusion**\
+**1.8. Conclusion**\
 The fitz module provides a robust and efficient means to extract text
 from PDF documents, a critical step in building a knowledge base for
 RAG-powered LLM systems. When combined with effective preprocessing and
