@@ -2,8 +2,8 @@
 The project leverages a sophisticated hybrid NLP architecture that brings together Retrieval-Augmented Generation (RAG), Large Language Models (LLMs), and spaCy's advanced linguistic capabilities. This unique combination allows us to move beyond standard language generation to produce content that is efficient, context-aware, and inherently explainable. By integrating structured data retrieval with state-of-the-art generative models and fine-grained text processing, the system ensures more accurate, transparent, and accountable AI outputs, specifically tailored for critical domain-specific applications.
 
 
-**1st Step Retrieve:** Extracting Textual Data from PDF Files Using fitz (PyMuPDF)
-for Retrieval-Augmented Generation (RAG) Systems
+***1st Step Retrieve:** Extracting Textual Data from PDF Files Using fitz (PyMuPDF)
+for Retrieval-Augmented Generation (RAG) Systems***
 
 **1.1 Introduction**\
 Retrieval-Augmented Generation (RAG) integrates external data retrieval
