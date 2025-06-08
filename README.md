@@ -36,7 +36,7 @@ RAG-based LLM application.
 pip install pymupdf
 
 **1.4.2 Text Extraction Process**
-
+```python
 import fitz \# PyMuPDF
 
 def extract_text_from_pdf(pdf_path):
@@ -52,7 +52,7 @@ text += page.get_text()
 doc.close()
 
 return text
-
+```
 **1.4.3 Preprocessing**\
 After extraction, the text may contain line breaks, headers/footers, or
 encoding artifacts. Preprocessing steps may include:
@@ -65,7 +65,7 @@ encoding artifacts. Preprocessing steps may include:
     sentence boundary detection or paragraph segmentation)
 
 **Example**:
-
+```python
 import re
 
 def clean_text(raw_text):
@@ -77,13 +77,13 @@ cleaned = re.sub(r\'\\n+\', \'\\n\', raw_text)
 cleaned = re.sub(r\'\[ \]{2,}\', \' \', cleaned)
 
 return cleaned.strip()
-
+```
 **1.4.4 Chunking for RAG**\
 The cleaned text is split into chunks (e.g., 500 tokens) to optimize
 retrieval. Tools such as
 langchain.text_splitter.RecursiveCharacterTextSplitter or custom
 token-based approaches can be used.
-
+```python
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 splitter = RecursiveCharacterTextSplitter(
@@ -95,7 +95,7 @@ chunk_overlap=50
 )
 
 chunks = splitter.split_text(cleaned_text)
-
+```
 **1.5. Integration with RAG Pipelines**\
 The extracted chunks can be indexed into a vector database (e.g., FAISS,
 Chroma, Weaviate). These embeddings are later retrieved during inference
@@ -144,7 +144,7 @@ To describe the role of similarity scoring using dot_score in enhancing the docu
 
 **2.4.1 Embedding Generation**  
 Before scoring, both the query and document chunks are embedded into high-dimensional vector representations:
-
+```python
 from sentence_transformers import SentenceTransformer
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -152,22 +152,22 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 query_embedding = model.encode(query, convert_to_tensor=True)
 
 chunk_embeddings = model.encode(chunk_list, convert_to_tensor=True)
-
+```
 **2.4.2 Similarity Scoring using dot_score**
-
+```python
 from sentence_transformers import util
 
 \# Compute dot product similarity scores between query and each chunk
 
 scores = util.dot_score(a=query_embedding, b=chunk_embeddings)\[0\]
-
+```
 - a: A tensor representing the query vector
 - b: A tensor of document chunk vectors
 - dot_score\[a, b\]: Computes dot product between vectors (closely related to cosine similarity if vectors are normalized)
 
 **2.4.3 Selecting Top-k Chunks**  
 Once scores are computed, the top-k chunks are selected for use in the input to the LLM:
-
+```python
 import torch
 
 top_k = 3
@@ -175,7 +175,7 @@ top_k = 3
 top_results = torch.topk(scores, k=top_k)
 
 relevant_chunks = \[chunk_list\[i\] for i in top_results.indices\]
-
+```
 **2.5 Why Use Dot Product Scoring?**
 
 - **Efficient**: Suitable for batch processing and GPU acceleration
