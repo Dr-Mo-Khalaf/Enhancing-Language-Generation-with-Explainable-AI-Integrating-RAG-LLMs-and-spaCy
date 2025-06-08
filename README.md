@@ -125,3 +125,139 @@ from PDF documents, a critical step in building a knowledge base for
 RAG-powered LLM systems. When combined with effective preprocessing and
 chunking, this approach enables accurate and context-rich responses from
 LLMs by grounding them in reliable source documents.
+
+
+# **Title:** Augmentation in RAG Systems Using dot_score for Similarity-Based Retrieval
+
+**2.1 Introduction**  
+The second critical step in a Retrieval-Augmented Generation (RAG) workflow is augmenting the user query with the most relevant document chunks. This augmentation process requires accurately retrieving text segments from a pre-indexed knowledge base that are semantically similar to the query. One efficient method to achieve this is by using dot product similarity via the dot_score function from the sentence_transformers utility module.
+
+**2.2 Objective**  
+To describe the role of similarity scoring using dot_score in enhancing the document retrieval and augmentation stage of RAG pipelines, ensuring the LLM is grounded in the most relevant context.
+
+**2.3 Tools and Libraries**
+
+- **sentence_transformers**: A Python library for embedding text and computing semantic similarity.
+- **PyTorch**: Backend used by sentence_transformers.
+
+**2.4 Embedding and Retrieval Strategy**
+
+**2.4.1 Embedding Generation**  
+Before scoring, both the query and document chunks are embedded into high-dimensional vector representations:
+
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+query_embedding = model.encode(query, convert_to_tensor=True)
+
+chunk_embeddings = model.encode(chunk_list, convert_to_tensor=True)
+
+**2.4.2 Similarity Scoring using dot_score**
+
+from sentence_transformers import util
+
+\# Compute dot product similarity scores between query and each chunk
+
+scores = util.dot_score(a=query_embedding, b=chunk_embeddings)\[0\]
+
+- a: A tensor representing the query vector
+- b: A tensor of document chunk vectors
+- dot_score\[a, b\]: Computes dot product between vectors (closely related to cosine similarity if vectors are normalized)
+
+**2.4.3 Selecting Top-k Chunks**  
+Once scores are computed, the top-k chunks are selected for use in the input to the LLM:
+
+import torch
+
+top_k = 3
+
+top_results = torch.topk(scores, k=top_k)
+
+relevant_chunks = \[chunk_list\[i\] for i in top_results.indices\]
+
+**2.5 Why Use Dot Product Scoring?**
+
+- **Efficient**: Suitable for batch processing and GPU acceleration
+- **Effective**: Provides accurate semantic similarity when used with normalized embeddings
+- **Compatible**: Works seamlessly with widely-used transformer-based embedding models
+
+**2.6 Application in RAG**  
+The selected top-k relevant chunks are appended or prepended to the query prompt sent to the LLM. This contextual grounding ensures:
+
+- Higher factual accuracy
+- Better understanding of domain-specific terminology
+- Reduced hallucination in generative responses
+
+**2.7 Conclusion**  
+The dot_score function plays a pivotal role in the augmentation phase of RAG by enabling rapid, effective similarity matching between user queries and knowledge base documents. By retrieving top-scoring chunks and injecting them into the prompt, RAG-based systems ensure more relevant, coherent, and reliable outputs from large language models.
+
+#3rd step : Generation in RAG Systems Using TinyLlama-1.1B for Context-Aware Response Synthesis
+
+## 3.1 Introduction
+
+The final stage in a Retrieval-Augmented Generation (RAG) system is the generation step, where the large language model (LLM) synthesizes an answer based on the original user query augmented with the most relevant retrieved document chunks. This report describes how to implement the generation phase using the TinyLlama-1.1B-Chat-v1.0 model.
+
+## 3.2 Objective
+
+To utilize the TinyLlama-1.1B-Chat-v1.0 model to generate contextually rich and factually accurate responses by conditioning it on both the user query and the relevant retrieved context.
+
+## 3.3 Tools and Libraries
+
+* **transformers**: Hugging Face library for loading pretrained LLMs.
+* **PyTorch**: Backend for running model inference.
+* **TinyLlama-1.1B-Chat-v1.0**: A compact yet capable causal LLM.
+
+## 3.4 Loading the Language Model
+
+```python
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
+
+tokenizer = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+
+# Move the model to GPU if available
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+```
+
+## 3.5 Generating the Final Response
+
+### 3.5.1 Constructing the Prompt
+
+The prompt combines the top-k retrieved chunks with the original query:
+
+```python
+prompt = """
+Context:
+{}
+
+Question:
+{}
+""".format("\n\n".join(relevant_chunks), user_query)
+```
+
+### 3.5.2 Tokenizing and Generating Output
+
+```python
+inputs = tokenizer(prompt, return_tensors="pt").to(device)
+output = model.generate(**inputs, max_new_tokens=200, do_sample=False)
+response = tokenizer.decode(output[0], skip_special_tokens=True)
+```
+
+## 3.6 Considerations for TinyLlama
+
+* **Lightweight**: Suitable for inference on edge devices with limited resources.
+* **Fast Inference**: Achieves low latency on both CPU and GPU.
+* **Limitations**: As a smaller model, it may exhibit reduced reasoning depth or factual precision compared to larger models (e.g., LLaMA 2, GPT-3.5).
+
+## 3.7 Use Cases in RAG
+
+* Answering domain-specific queries with verified documentation.
+* Enabling LLMs to reference structured data retrieved at runtime.
+* Use in chatbots, knowledge assistants, and QA systems.
+
+## 3.8 Conclusion
+
+By leveraging TinyLlama-1.1B in the generation phase of RAG, the system can produce concise and grounded answers conditioned on semantically relevant document content. This step completes the RAG pipeline by transforming retrieved knowledge into actionable and coherent outputs.
